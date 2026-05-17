@@ -207,5 +207,5 @@
 }
 
 a[href] {
-  @apply underline underline-offset-4 hover:no-underline text-gray-500;
+  @apply font-bold underline underline-offset-2 hover:no-underline text-red-500;
 }
