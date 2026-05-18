@@ -39,16 +39,12 @@ docker compose --profile stego_backend up -w
 
 When the containers are running, you can access them at:
 
-- frontend: http://localhost:4123
-- backend: http://localhost:8181
-- postgres db (adminer): http://localhost:8080
+<!-- - frontend: http://localhost:4123 -->
 
-> Defaults for database login:
->
-> - server: postgres
-> - username: admin
-> - password: admin
-> - database: stego_wasm
+- backend: http://localhost:8000
+- postgres db (adminer): http://localhost:8080/?pgsql=postgres&username=admin&db=stego_wasm&ns=public
+
+> See `.env.example` for required environment variables, and create your own `.env` file to use.
 
 #### TODO
 

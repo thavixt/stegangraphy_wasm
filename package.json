@@ -17,10 +17,13 @@
   "license": "ISC",
   "author": "thavixt",
   "scripts": {
-    "dev:be": "docker compose --profile stego_backend up -w",
-    "dev:fe": "cd frontend && npm run dev",
+    "be:build": "docker compose up -d server --build",
+    "be:dev": "docker compose --profile stego_backend up -w",
     "build": "docker compose up --profile app --build",
-    "build:be": "docker compose up -d server --build",
-    "build:fe": "docker compose up -d frontend --build"
+    "db:build": "docker compose up -d postgres --build",
+    "db:stop": "docker compose stop postgres",
+    "db:stop-clean": "docker compose stop postgres && rm -rf server/postgres/data",
+    "fe:build": "docker compose up -d frontend --build",
+    "fe:dev": "npm run dev --workspace=frontend"
   }
 }
