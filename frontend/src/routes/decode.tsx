@@ -4,7 +4,7 @@ import { Input } from "#components/ui/input";
 import { Label } from "#components/ui/label";
 import { Progress } from "#components/ui/progress";
 import { Textarea } from "#components/ui/textarea";
-import { cn, sleep } from "#lib/utils";
+import { cn } from "#lib/utils";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { useWasm } from "../logic/hooks/useWasm";
@@ -16,11 +16,6 @@ export function Decode() {
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const wasm = useWasm();
-
-  const progressCallback = (percent: number) => {
-    console.debug("progress", percent);
-    setProgress(Math.round(percent));
-  };
 
   const onImageInput: React.ReactEventHandler<HTMLInputElement> = (e) => {
     const file = e.currentTarget.files?.[0];
@@ -81,10 +76,36 @@ export function Decode() {
       const buffer = imageBuffer.current;
 
       console.debug("start decoding");
-      const decodingTask = async () => {
-        // Yield to the event loop so the "Loading" UI can render
-        await sleep(500);
-        return window.decode(new Uint8Array(buffer), progressCallback);
+      const decodingTask = () => {
+        return new Promise<string>((resolve, reject) => {
+          const worker = new Worker(
+            new URL("../../wasm/wasm.worker.ts", import.meta.url),
+            { type: "module" },
+          );
+
+          worker.onmessage = (event) => {
+            const { type, payload } = event.data;
+            if (type === "progress") {
+              console.debug("progress", payload);
+              setProgress(Math.round(payload));
+            }
+            if (type === "success") {
+              resolve(payload);
+              worker.terminate();
+            }
+            if (type === "error") {
+              reject(new Error(payload));
+              worker.terminate();
+            }
+          };
+
+          worker.onerror = (e) => {
+            reject(e);
+            worker.terminate();
+          };
+
+          worker.postMessage({ type: "decode", payload: { buffer } });
+        });
       };
       const promise = toast.promise(decodingTask(), {
         success: "Text successfully decoded from image.",

@@ -1,16 +1,18 @@
 declare global {
-  interface Window {
-    Go: typeof Go;
-    callWasm: () => void;
-    greet: (name: string) => string;
-    decode: (
-      buffer: Uint8Array<ArrayBuffer>,
-      onProgress: (percent: number) => void,
-    ) => Promise<string>;
-  }
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+  interface Window extends IGolang { }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export interface IGolang {
+  Go: typeof Go;
+  callWasm: () => void;
+  greet: (name: string) => string;
+  decode: (
+    buffer: Uint8Array<ArrayBuffer>,
+    onProgress: (percent: number) => void,
+  ) => Promise<string>;
+}
+
 declare class Go {
   constructor();
 
@@ -24,6 +26,3 @@ declare class Go {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   _makeFuncWrapper(id: number): Function;
 }
-
-export { };
-
