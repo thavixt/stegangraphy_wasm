@@ -9,7 +9,8 @@
     "#hooks/*": "./src/hooks/*.ts"
   },
   "scripts": {
-    "dev": "concurrently --names \"go,fe\" --prefix-colors \"yellow,blue\" \"npm run wasm:watch\" \"vite\"",
+    "dev": "concurrently --names \"go,fe\" --prefix-colors \"yellow,blue\" \"npm run wasm:watch\" \"vite --host 0.0.0.0\"",
+    "dev:app": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint . --cache",
     "tsc": "tsc --project tsconfig.app.json",

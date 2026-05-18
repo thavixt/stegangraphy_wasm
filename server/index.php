@@ -21,7 +21,7 @@ function replySuccess($response)
 // greetings
 if (isset($_GET["welcome"])) {
   $name = $_GET["name"] ?? "world";
-  replySuccess("Welcome, $name!");
+  replySuccess("Welcome to stego-wasm, $name!");
 }
 
 $relyingPartyName = "WebAuthn Passkey demo";

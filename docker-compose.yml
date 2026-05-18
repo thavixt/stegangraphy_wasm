@@ -1,8 +1,75 @@
-version: "2"
 services:
   server:
-    image: php:7.4.3-apache
+    profiles: [stego_backend]
+    container_name: wasm-backend
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    develop:
+      watch:
+        - action: sync
+          # - action: sync+restart
+          path: ./server
+          target: /var/www/html
+          ignore:
+            - vendor/
     ports:
+      - "8000:8000"
+      - "5173:5173"
       - "8181:80"
     volumes:
-      - ./app:/var/www/html
+      - ./server:/var/www/html
+    tty: true
+    depends_on:
+      - postgres
+
+  postgres:
+    profiles: [stego_backend]
+    image: postgres:17
+    container_name: wasm-postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: stego_wasm
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./server/postgres/data:/var/lib/postgresql/data
+      - ./server/postgres/backups:/backups
+
+  adminer:
+    profiles: [stego_backend]
+    image: adminer
+    container_name: wasm-adminer
+    ports:
+      - "8080:8080"
+
+    depends_on:
+      - postgres
+
+  frontend:
+    profiles: [do_not_start]
+    container_name: wasm-frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "4123:4123"
+    volumes:
+      - ./frontend:/app
+    environment:
+      - VITE_SERVER_URL=http://localhost:8181
+      - BROWSER=none
+    depends_on:
+      - server
+    command: npm run dev
+    develop:
+      watch:
+        - action: sync
+          path: ./frontend
+          target: /app
+          initial_sync: true
+          ignore:
+            - node_modules/
+        - action: rebuild
+          path: package.json

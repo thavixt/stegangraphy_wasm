@@ -7,6 +7,7 @@ import (
 
 func main() {
 	// Register the greet function
+	// testing
 	js.Global().Set("greet", js.FuncOf(greet))
 	js.Global().Set("decode", js.FuncOf(decode))
 	js.Global().Set("wasm_result", js.TypeString.String())
