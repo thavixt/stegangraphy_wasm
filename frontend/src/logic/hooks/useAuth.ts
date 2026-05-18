@@ -10,7 +10,7 @@ interface UserDetails {
   displayName: string;
 }
 
-const SERVER_URL = import.meta.env.VITE_SERVER_URL ?? "http://localhost:3000";
+const SERVER_URL = import.meta.env.VITE_SERVER_URL;
 
 export function useAuth() {
   const [authenticated, setAuthenticated] = useState(false);
