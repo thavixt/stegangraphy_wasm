@@ -19,7 +19,6 @@ export async function initWasm(): Promise<WebAssembly.Exports> {
     const result = await WebAssembly.instantiate(buffer, go.importObject);
 
     wasmExports = result.instance.exports;
-    console.log("asd");
     console.debug("[go:wasm]", "wasmExports", { ...wasmExports });
     go.run(result.instance);
     console.log("[go:wasm]", "initialized.");

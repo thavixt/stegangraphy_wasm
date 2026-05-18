@@ -2,7 +2,8 @@ import { type ReactNode, useCallback, useEffect, useState } from "react";
 import { initWasm } from "../initWasm";
 import { WasmContext } from "./WasmContext";
 
-export const WASM_STAT_UPDATE_INTERVAL_MS = 5000;
+const WASM_STAT_REFRESH_INTERVAL_MS =
+  import.meta.env.VITE_WASM_REFRESH_INTERVAL ?? 3000;
 
 /**
  * Some stats about the active WASM instance
@@ -23,6 +24,7 @@ export interface WasmContextType {
   ready: boolean;
   error: string | null;
   stats: WasmStats;
+  refreshIntervalMs: number;
 }
 
 export function WasmProvider({ children }: { children: ReactNode }) {
@@ -56,7 +58,7 @@ export function WasmProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const timer = window.setInterval(
       updateWasmStats,
-      WASM_STAT_UPDATE_INTERVAL_MS,
+      WASM_STAT_REFRESH_INTERVAL_MS,
     );
     return () => window.clearInterval(timer);
   }, [updateWasmStats]);
@@ -77,7 +79,15 @@ export function WasmProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <WasmContext.Provider value={{ wasm, ready, error, stats }}>
+    <WasmContext.Provider
+      value={{
+        wasm,
+        ready,
+        error,
+        stats,
+        refreshIntervalMs: WASM_STAT_REFRESH_INTERVAL_MS,
+      }}
+    >
       {children}
     </WasmContext.Provider>
   );

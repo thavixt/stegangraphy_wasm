@@ -3,7 +3,10 @@ declare global {
     Go: typeof Go;
     callWasm: () => void;
     greet: (name: string) => string;
-    decode: (buffer: Uint8Array<ArrayBuffer>) => string;
+    decode: (
+      buffer: Uint8Array<ArrayBuffer>,
+      onProgress: (percent: number) => void,
+    ) => Promise<string>;
   }
 }
 

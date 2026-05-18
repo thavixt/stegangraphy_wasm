@@ -4,14 +4,17 @@ import { useWasm } from "../logic/hooks/useWasm";
  *
  * @todo tiny line chart for memory usage
  */
-
 export function WasmStats() {
-  const { ready, error, stats } = useWasm();
-  // const refreshInterval = WASM_STAT_UPDATE_INTERVAL_MS / 1000;
+  const { ready, error, stats, refreshIntervalMs } = useWasm();
+
+  if (import.meta.env.PROD) {
+    return null;
+  }
 
   return (
     <div className="z-100 fixed bottom-0 left-0 m-4 p-2 flex flex-col gap-1 bg-gray-400 drop-shadow-lg drop-shadow-slate-700 rounded-md text-xs opacity-25 hover:opacity-100 min-w-42 w-fit">
       <b>WASM runtime:</b>
+      <small>(refreshed every {Math.round(refreshIntervalMs / 1000)}s)</small>
       {error ? (
         <div>Instantiation failed.</div>
       ) : (
@@ -30,7 +33,6 @@ export function WasmStats() {
               <span>{stats.stackPointer}</span>
             </div>
           </div>
-          {/* <small>(refreshed every {refreshInterval}s)</small> */}
         </>
       )}
     </div>

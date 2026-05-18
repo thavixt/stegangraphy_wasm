@@ -4,7 +4,7 @@ import { Input } from "#components/ui/input";
 import { Label } from "#components/ui/label";
 import { Progress } from "#components/ui/progress";
 import { Textarea } from "#components/ui/textarea";
-import { cn } from "#lib/utils";
+import { cn, sleep } from "#lib/utils";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { useWasm } from "../logic/hooks/useWasm";
@@ -17,13 +17,17 @@ export function Decode() {
   const [progress, setProgress] = useState(0);
   const wasm = useWasm();
 
+  const progressCallback = (percent: number) => {
+    console.debug("progress", percent);
+    setProgress(Math.round(percent));
+  };
+
   const onImageInput: React.ReactEventHandler<HTMLInputElement> = (e) => {
     const file = e.currentTarget.files?.[0];
     if (!file) {
       toast.error("Invalid or empty file selection.");
       return;
     }
-
     if (!file.type.startsWith("image/")) {
       toast.error("Please select a valid image file.");
       return;
@@ -64,27 +68,31 @@ export function Decode() {
   };
 
   const wasm_decode = async () => {
-    setLoading(true);
-    setProgress(0);
     try {
+      setLoading(true);
+      setProgress(0);
       if (!imageBuffer.current) {
         throw new Error("Load an image to the canvas to decode.");
       }
-      const result = window.decode(new Uint8Array(imageBuffer.current));
-      console.log(result, typeof result);
       if (!outputRef.current) {
         throw new Error("Output text area not found.");
       }
 
-      // @todo actual progress feedback from wasm
-      setProgress(25);
-      await new Promise((res) => setTimeout(res, 1000));
-      setProgress(50);
-      await new Promise((res) => setTimeout(res, 1000));
-      setProgress(75);
-      await new Promise((res) => setTimeout(res, 1000));
+      const buffer = imageBuffer.current;
 
-      toast.success("Text decoded from image data.");
+      console.debug("start decoding");
+      const decodingTask = async () => {
+        // Yield to the event loop so the "Loading" UI can render
+        await sleep(500);
+        return window.decode(new Uint8Array(buffer), progressCallback);
+      };
+      const promise = toast.promise(decodingTask(), {
+        success: "Text successfully decoded from image.",
+        loading: "Decoding image...",
+      });
+      const result = await promise.unwrap();
+      console.debug("finished", result);
+
       outputRef.current.value = result;
     } catch (e) {
       const error = e as Error;
