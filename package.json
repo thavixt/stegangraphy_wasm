@@ -24,6 +24,6 @@
     "db:stop": "docker compose stop postgres",
     "db:stop-clean": "docker compose stop postgres && rm -rf server/postgres/data",
     "fe:build": "docker compose up -d frontend --build",
-    "fe:dev": "npm run dev --workspace=frontend"
+    "fe:dev": "npm i && rm -rf frontend/node_modules && npm run dev --workspace=frontend"
   }
 }
